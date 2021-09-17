@@ -31,6 +31,20 @@ app.post("/account", (req, res) => {
 
   return res.status(201).send();
 });
+// rota para pegar o extrato da conta do cliente
+app.get("/statement/", (req, res) => {
+  // pega o cpf pelo header da rota
+  const { cpf } = req.headers;
+  // verifica se o cpf é válido
+  const customer = customers.find((customer) => customer.cpf === cpf);
+  // se não tiver cadastrado retorna uma mensagem 
+  if(!customer) {
+    return res.status(400).json({error: "Customer not found!"});
+  }
+
+  // tetorna o extrato
+  return res.json(customer.statement);
+});
 
 app.listen(3333, () => {
   console.log("Server is running on port 3333");
