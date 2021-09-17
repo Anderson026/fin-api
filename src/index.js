@@ -9,6 +9,23 @@ app.use(express.json());
 // criando um banco de dados fake
 const customers = [];
 
+// middleware customizado para validar cpf
+function verifyIfExistsAccountCPF(req, res, next) {
+  // pega o cpf pelo header da rota
+  const { cpf } = req.headers;
+  // verifica se o cpf é válido
+  const customer = customers.find((customer) => customer.cpf === cpf);
+
+  // se não tiver cadastrado retorna uma mensagem 
+  if(!customer) {
+    return res.status(400).json({error: "Customer not found!"});
+  }
+  // inserindo informações dentro do request 
+  req.customer = customer;
+
+  return next();
+}
+
 // rota para criar uma conta
 app.post("/account", (req, res) => {
   const { cpf, name } = req.body;
@@ -31,17 +48,13 @@ app.post("/account", (req, res) => {
 
   return res.status(201).send();
 });
-// rota para pegar o extrato da conta do cliente
-app.get("/statement/", (req, res) => {
-  // pega o cpf pelo header da rota
-  const { cpf } = req.headers;
-  // verifica se o cpf é válido
-  const customer = customers.find((customer) => customer.cpf === cpf);
-  // se não tiver cadastrado retorna uma mensagem 
-  if(!customer) {
-    return res.status(400).json({error: "Customer not found!"});
-  }
 
+// app.use(verifyIfExistsAccountCPF); -> este middleware é indicado para quando for usar em mais de uma rota
+
+// rota para pegar o extrato da conta do cliente
+app.get("/statement", verifyIfExistsAccountCPF, (req, res) => {
+  
+  const { customer } = req;
   // tetorna o extrato
   return res.json(customer.statement);
 });
