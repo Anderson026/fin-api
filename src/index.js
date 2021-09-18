@@ -26,7 +26,7 @@ function verifyIfExistsAccountCPF(req, res, next) {
   return next();
 }
 
-// Verifica se o saldo é suficiente para o saldo
+// Verifica o tipo de operação se é crédito ou débito
 function getBalance(statement) {
 
   const balance = statement.reduce((acc, operation) => {
@@ -61,16 +61,6 @@ app.post("/account", (req, res) => {
   });
 
   return res.status(201).send();
-});
-
-// app.use(verifyIfExistsAccountCPF); -> este middleware é indicado para quando for usar em mais de uma rota
-
-// rota para pegar o extrato da conta do cliente
-app.get("/statement", verifyIfExistsAccountCPF, (req, res) => {
-  
-  const { customer } = req;
-  // retorna o extrato
-  return res.json(customer.statement);
 });
 
 // rota para fazer um depósito na conta
@@ -115,6 +105,37 @@ app.post("/withdraw", verifyIfExistsAccountCPF, (req, res) => {
 
   return res.status(201).send();
 })
+
+// app.use(verifyIfExistsAccountCPF); -> este middleware é indicado para quando for usar em mais de uma rota
+
+// rota para pegar o extrato da conta do cliente
+app.get("/statement", verifyIfExistsAccountCPF, (req, res) => {
+  
+  const { customer } = req;
+  // retorna o extrato
+  return res.json(customer.statement);
+});
+
+// rota para consultar saldo por data
+app.get("/statement/date", verifyIfExistsAccountCPF, (req, res) => {
+  
+  const { customer } = req;
+  // pega a data pelo query params
+  const { date } = req.query;
+  // formatando a data para o padrão pt-bt
+  const dateFormat = new Date(date + " 00:00");
+  // encontra todos os saldos a partir da data informada
+  const statement = customer.statement.filter(
+    (statement) => 
+      statement.created_at.toDateString() ===
+      new Date(dateFormat).toDateString()
+  )
+
+
+  // retorna o extrato
+  return res.json(statement);
+});
+
 
 app.listen(3333, () => {
   console.log("Server is running on port 3333");
