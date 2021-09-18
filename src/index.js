@@ -55,9 +55,28 @@ app.post("/account", (req, res) => {
 app.get("/statement", verifyIfExistsAccountCPF, (req, res) => {
   
   const { customer } = req;
-  // tetorna o extrato
+  // retorna o extrato
   return res.json(customer.statement);
 });
+
+// rota para fazer um depósito na conta
+app.post("/deposit", verifyIfExistsAccountCPF, (req, res) => {
+  // envia a descrição e o valor da operação pelo body
+  const { description, amount } = req.body;
+  // pega o usuário pela requisição
+  const { customer } = req;
+  // define o estado da operação
+  const statementOperation = {
+    description,
+    amount,
+    created_at: new Date(),
+    type: "credit",
+  };
+  // faz a operação de envio
+  customer.statement.push(statementOperation);
+  // retorna o status da operação
+  return res.status(201).send();
+})
 
 app.listen(3333, () => {
   console.log("Server is running on port 3333");
