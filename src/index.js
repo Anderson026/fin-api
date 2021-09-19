@@ -80,7 +80,7 @@ app.post("/deposit", verifyIfExistsAccountCPF, (req, res) => {
   customer.statement.push(statementOperation);
   // retorna o status da operação
   return res.status(201).send();
-})
+});
 
 // rota para saque
 app.post("/withdraw", verifyIfExistsAccountCPF, (req, res) => {
@@ -104,6 +104,24 @@ app.post("/withdraw", verifyIfExistsAccountCPF, (req, res) => {
   customer.statement.push(statementOperation);
 
   return res.status(201).send();
+});
+// rota para atualizar o nome
+app.put("/account", verifyIfExistsAccountCPF, (req, res) => {
+  // recebe o nome pelo body
+  const { name } = req.body;
+  // pegar o customer pela requisição
+  const { customer } = req;
+  // atualiza o nome
+  customer.name = name;
+  // retorna o status se ocorreu tudo certo
+  return res.status(201).send();
+});
+// rota para mostrar os dados do cliente
+app.get("/account", verifyIfExistsAccountCPF, (req, res) => {
+  // pega o customer do request
+  const { customer } = req;
+  // retorna o customer
+  return res.json(customer);
 })
 
 // app.use(verifyIfExistsAccountCPF); -> este middleware é indicado para quando for usar em mais de uma rota
