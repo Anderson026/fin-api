@@ -116,6 +116,15 @@ app.put("/account", verifyIfExistsAccountCPF, (req, res) => {
   // retorna o status se ocorreu tudo certo
   return res.status(201).send();
 });
+// rota para deletar uma conta
+app.delete("/account", verifyIfExistsAccountCPF, (req, res) => {
+  // pega o customer da requisição
+  const { customer } = req;
+  // verifica onde está o cliente no array para remoção
+  customers.splice(customer, 1);
+  // retorna o status da rota após a operação de deleção
+  return res.status(200).json(customers);
+});
 // rota para mostrar os dados do cliente
 app.get("/account", verifyIfExistsAccountCPF, (req, res) => {
   // pega o customer do request
@@ -153,7 +162,15 @@ app.get("/statement/date", verifyIfExistsAccountCPF, (req, res) => {
   // retorna o extrato
   return res.json(statement);
 });
+// rota para mostrar o saldo da conta do cliente
+app.get("/balance", verifyIfExistsAccountCPF, (req, res) => {
 
+  const { customer } = req;
+
+  const balance = getBalance(customer.statement);
+
+  return res.json(balance);
+});
 
 app.listen(3333, () => {
   console.log("Server is running on port 3333");
