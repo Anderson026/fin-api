@@ -32,7 +32,7 @@ function getBalance(statement) {
   const balance = statement.reduce((acc, operation) => {
     // verifica o tipo de operação
     if(operation.type === "credit") {
-      return acc = operation.amount;
+      return acc + operation.amount;
     } else {
       return acc - operation.amount;
     }
